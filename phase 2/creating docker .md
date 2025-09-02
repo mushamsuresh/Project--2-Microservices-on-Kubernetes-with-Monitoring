@@ -124,3 +124,31 @@ docker-compose up --build
 - Database → Postgres running at `localhost:5432`
 
 ---
+frontend/
+ ├── public/          # Static files
+ ├── src/             # React source code (your JSX/JS)
+ ├── package.json
+ ├── package-lock.json
+ ├── Dockerfile
+
+🐳 What Happens in Dockerfile
+- Here’s where your React code is used:
+# Stage 1: Build React
+FROM node:18 AS build
+WORKDIR /app
+
+# 1. Copy dependency files
+COPY package*.json ./      
+RUN npm install
+
+# 2. Copy your React source code (src/, public/, etc.)
+COPY . .                  👈 Your React code is copied here
+
+# 3. Build optimized static files
+RUN npm run build
+
+# Stage 2: Serve with Nginx
+FROM nginx:alpine
+COPY --from=build /app/build /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
