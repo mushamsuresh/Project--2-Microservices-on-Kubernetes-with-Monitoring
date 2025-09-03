@@ -43,11 +43,9 @@ You will push under your GitHub username:
 ## 3) Authenticate Docker to GHCR
 
 ``` powershell
-# store token in environment variable (temporary for session)
-$env:GITHUB_PAT = 'ghp_XXXXXXXXXXXXXXXXXXXX'
+docker login ghcr.io -u <GITHUB_USERNAME>
+# When prompted for a password, paste the PAT you created.
 
-# login with token
-echo $env:GITHUB_PAT | docker login ghcr.io -u mushamsuresh --password-stdin
 ```
 
 ------------------------------------------------------------------------
