@@ -34,47 +34,19 @@ docker push ghcr.io/mushamsuresh/address-ui:latest
 
 ------------------------------------------------------------------------
 
-## 7) Automate with GitHub Actions (optional)
+## 7) Pull the image and run 
 
 Example workflow file (`.github/workflows/publish.yml`):
 
 ``` yaml
-name: build-and-publish
-on: [push]
+docker pull ghcr.io/mushamsuresh/address-ui:latest
 
-permissions:
-  packages: write
-  contents: read
+docker run -d -p 3000:80 ghcr.io/mushamsuresh/address-ui:latest
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build and push
-        uses: docker/build-push-action@v4
-        with:
-          push: true
-          tags: ghcr.io/mushamsuresh/address-ui:latest
 ```
-
+Here latest is the tag which is given while pushing the file to github. we can see the same tag in GHCR
 ------------------------------------------------------------------------
 
-## 8) Common errors
 
--   **unauthorized/denied** → check PAT scopes (`write:packages`, `repo`
-    if private, SSO enabled).\
--   **Image not visible** → check under Profile → Packages or linked
-    repository's Packages.
-
-------------------------------------------------------------------------
-
-## 9) Security tips
-
--   Do not hardcode PAT in scripts. Use **GitHub Secrets** for Actions.\
--   Use `--password-stdin` instead of typing password interactively.\
--   Rotate tokens periodically.
-
-------------------------------------------------------------------------
 
 
