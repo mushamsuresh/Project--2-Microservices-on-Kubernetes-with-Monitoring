@@ -36,7 +36,7 @@ docker push ghcr.io/mushamsuresh/address-ui:latest
 
 ## 7) Pull the image and run 
 
-Example workflow file (`.github/workflows/publish.yml`):
+
 
 ``` yaml
 docker pull ghcr.io/mushamsuresh/address-ui:latest
