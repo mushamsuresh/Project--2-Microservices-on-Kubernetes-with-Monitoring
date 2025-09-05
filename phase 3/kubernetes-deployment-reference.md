@@ -1,107 +1,105 @@
-# Kubernetes Deployment Reference Guide
+ 📂 Folder Structure Suggestion
 
-This document summarizes the successful steps taken to deploy and run a **Spring Boot backend** and **React frontend** on Kubernetes using Minikube.
-
+k8s-manifests/
+ ├── backend-deployment.yaml
+ ├── backend-service.yaml
+ ├── frontend-deployment.yaml
+ ├── frontend-service.yaml
+ └── ingress.yaml
+1. Backend Deployment + Service (Spring Boot / Node / Flask)
+# k8s-manifests/backend-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: ghcr.io/your-username/springboot-backend:latest # replace with your image
+          ports:
+            - containerPort: 8080
 ---
+# k8s-manifests/backend-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+spec:
+  selector:
+    app: backend
+  ports:
+    - port: 8080
+      targetPort: 8080
+  type: ClusterIP
 
-## ✅ Steps Completed
-
-### 1. Start Minikube
-```bash
-minikube start
-```
-
-### 2. Create Namespace
-```bash
-kubectl create namespace myapp
-```
-Namespace `myapp` is now used for all resources.
-
-### 3. Configure kubectl Context
-```bash
-kubectl config set-context --current --namespace=myapp
-```
-
-### 4. Push Images to GitHub Container Registry (GHCR)
-- Backend: `ghcr.io/mushamsuresh/springboot-backend:latest`
-- Frontend: `ghcr.io/mushamsuresh/address-ui:latest`
-
-### 5. Load Images into Minikube
-```bash
-minikube image load ghcr.io/mushamsuresh/springboot-backend:latest
-minikube image load ghcr.io/mushamsuresh/address-ui:latest
-```
-
-### 6. Create Docker Registry Secret
-```bash
-kubectl create secret docker-registry ghcr-secret   --docker-server=ghcr.io   --docker-username=mushamsuresh   --docker-password=<YOUR_GHCR_PAT>   --docker-email=sureshmusham51@gmail.com
-```
-
-Patch the default service account to always use this secret:
-```bash
-kubectl patch serviceaccount default   -p '{"imagePullSecrets": [{"name": "ghcr-secret"}]}'
-```
-
-### 7. Deploy Backend (Spring Boot)
-Created **backend.yaml** with Deployment + Service:
-- Deployment: `backend-deployment`
-- Service: `backend-service` (ClusterIP, port 8080)
-
-### 8. Deploy Frontend (React)
-Created **frontend.yaml** with Deployment + Service:
-- Deployment: `frontend-deployment`
-- Service: `frontend-service` (ClusterIP, port 80)
-
-### 9. Verify Deployments & Services
-```bash
-kubectl -n myapp get pods,svc
-```
-✅ Both backend and frontend pods are **Running**.  
-✅ Services are created (`backend-service` and `frontend-service`).
-
-### 10. Confirm Backend Logs
-```bash
-kubectl -n myapp logs <backend-pod>
-```
-Output confirmed:
-```
-Tomcat started on port 8080 (http) with context path '/'
-```
-
-### 11. Access Services with Port-Forward
-Frontend:
-```bash
-kubectl -n myapp port-forward svc/frontend-service 8081:80
-# Access at http://localhost:8081
-```
-Backend:
-```bash
-kubectl -n myapp port-forward svc/backend-service 8082:8080
-# Access at http://localhost:8082/api
-```
-
-✅ Verified both applications are accessible locally.
-
+2. Frontend Deployment + Service (React / Angular)
+# k8s-manifests/frontend-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: ghcr.io/your-username/address-ui:latest # replace with your image
+          ports:
+            - containerPort: 80
 ---
+# k8s-manifests/frontend-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+spec:
+  selector:
+    app: frontend
+  ports:
+    - port: 80
+      targetPort: 80
+  type: ClusterIP
 
-## 🎯 Current Status
-- Backend and frontend successfully deployed on Kubernetes.  
-- Pods and services are working correctly.  
-- Applications accessible via port-forwarding.  
-
----
-
-## 🚀 Next Steps (Optional)
-- Configure **Ingress** with NGINX to access via `http://myapp.local`.  
-- Set up **Persistent Volumes** if the backend needs a database.  
-- Add **ConfigMaps/Secrets** for application configs.  
-- Explore **scaling** deployments:
-  ```bash
-  kubectl -n myapp scale deployment backend-deployment --replicas=3
-  ```
-
----
-
-## ✅ Conclusion
-Your Kubernetes deployment is **successful** — you now have a working setup for both frontend and backend running inside Minikube.
-
+3. Ingress (Route traffic → frontend + backend)
+# k8s-manifests/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  rules:
+    - host: myapp.local   # fake hostname for local dev
+      http:
+        paths:
+          - path: /?(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-service
+                port:
+                  number: 80
+          - path: /api/?(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: backend-service
+                port:
+                  number: 8080
