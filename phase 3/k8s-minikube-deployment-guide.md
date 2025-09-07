@@ -200,10 +200,10 @@ kubectl get ingress
 
    Add:
    ```
- sudo nano /etc/hosts
- 192.168.49.2   myapp.local
+   sudo nano /etc/hosts
+   192.168.49.2   myapp.local
    ```
-- (save with CTRL+O & enter, exit with CTRL+X)
+(save with CTRL+O & enter, exit with CTRL+X)
 3. Open in browser:
    - Frontend → `http://myapp.local`
    - Backend → `http://myapp.local/api`
@@ -224,21 +224,25 @@ Open → http://localhost:8082
 ---
 
 ## 6️⃣ Debugging Steps
-
-1. **Check backend service details**
+0. **Run the command**
+  ```bash
+kubectl -n myapp get pods -w
+```
+all the pods shouls be in running state
+2. **Check backend service details**
    ```bash
    kubectl -n myapp get svc backend-service -o yaml
    ```
    Ensure ports are correct (8080 → 8080).
 
-2. **Check backend pods health**
+3. **Check backend pods health**
    ```bash
    kubectl -n myapp get pods -l app=backend
    kubectl -n myapp logs <backend-pod>
    ```
    Look for: `Tomcat started on port(s): 8080`.
 
-3. **Re-run port-forward if needed**
+4. **Re-run port-forward if needed**
    ```bash
    kubectl -n myapp port-forward svc/backend-service 8082:8080
    ```
