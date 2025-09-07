@@ -170,9 +170,13 @@ kubectl -n myapp get secrets
 ```
 ### Step 5: Apply Manifests
 ```bash
-mkdir -p k8s-manifests
 kubectl apply -f k8s-manifests/
+kubectl -n myapp apply -f ingress.yaml
+nano ingress.yaml
 ```
+- Remove "/" if your are already inside the folder
+- nano is used for edit. control x to exit.
+- apply is used to run only one separate file
 
 ### Step 6: Verify Resources
 ```bash
