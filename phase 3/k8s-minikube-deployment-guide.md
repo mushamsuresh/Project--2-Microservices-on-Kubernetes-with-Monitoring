@@ -200,9 +200,10 @@ kubectl get ingress
 
    Add:
    ```
-   192.168.49.2   myapp.local
+ sudo nano /etc/hosts
+ 192.168.49.2   myapp.local
    ```
-
+- (save with CTRL+O & enter, exit with CTRL+X)
 3. Open in browser:
    - Frontend → `http://myapp.local`
    - Backend → `http://myapp.local/api`
