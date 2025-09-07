@@ -162,7 +162,12 @@ kubectl -n myapp create secret docker-registry ghcr-secret   --docker-server=ghc
 minikube image load ghcr.io/mushamsuresh/springboot-backend:latest
 minikube image load ghcr.io/mushamsuresh/address-ui:latest
 ```
+🔹 Verify Secret Creation
 
+After running the command, check if the secret exists: 
+```bash
+kubectl -n myapp get secrets
+```
 ### Step 5: Apply Manifests
 ```bash
 mkdir -p k8s-manifests
